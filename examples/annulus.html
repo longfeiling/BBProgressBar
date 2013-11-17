@@ -1,0 +1,76 @@
+<!--
+ * User: 老三
+ * Date: 13-11-17
+ * Time: 下午5:03
+ * 环形进度条示例
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>环形进度条</title>
+    <style type="text/css">
+        canvas {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width:400px;
+            height:400px;
+            margin-top: -200px;
+            margin-left: -200px;
+        }
+    </style>
+    <script type="text/javascript" src="../lib/ProgressBar.js"></script>
+    <script type="text/javascript" src="../lib/AnnulusProgressBar.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        /**
+         * 延时节流，避免刷新重绘太快
+         * @param fn {Function}
+         * @param time {Long}
+         * @returns {Function}
+         */
+        function throttle(fn, time) {
+            var timer = null;
+            return function() {
+                if(timer) {
+                    clearTimeout(timer);
+                    timer = null;
+                }
+                var args = arguments, self = this;
+                timer = setTimeout(function() {
+                    fn.apply(self, args);
+                }, time);
+            }
+        }
+
+        (function(undefined){
+            document.addEventListener("DOMContentLoaded", function() {
+                var canvas = document.getElementById("progress"),
+                        maxProgress = 500,
+                        currProgress = 0,
+                progressBar = new AnnulusProgressBar({
+                    panel: canvas
+                });
+                function addProgress() {
+                    currProgress ++;
+                    var percent = currProgress/maxProgress,
+                        tip = "约" + ((1 - percent) * 100).toFixed(0) + "s";
+                    if(percent >= 1) {
+                        tip = "OK了";
+                    }
+                    progressBar.paint(percent);
+                    progressBar.drawTips(tip);
+                    if(currProgress >= maxProgress) {
+                        clearInterval(theInterval);
+                    }
+                }
+                var theInterval = setInterval(throttle(addProgress, 20), 50);
+            }, false);
+        }());
+    </script>
+</head>
+<body>
+    <canvas id="progress"></canvas>
+</body>
+</html>
